@@ -7,23 +7,33 @@ import { createError } from '../middleware/errorHandler';
 
 const router = express.Router();
 
-// Register with invitation code
+// Register with invitation code OR bypass for first user
 router.post('/register', async (req, res, next) => {
   try {
     const { email, username, password, fullName, invitationCode } = req.body;
 
-    if (!email || !username || !password || !invitationCode) {
-      return next(createError('Email, username, password, and invitation code are required', 400));
+    if (!email || !username || !password) {
+      return next(createError('Email, username, and password are required', 400));
     }
 
-    // Verify invitation code
-    const invitationResult = await query(
-      'SELECT * FROM invitations WHERE invitation_code = $1 AND used = false AND expires_at > NOW()',
-      [invitationCode]
-    );
+    // Check if this is the first user (bypass invitation system)
+    const userCount = await query('SELECT COUNT(*) as count FROM users');
+    const isFirstUser = userCount.rows[0].count === '0';
 
-    if (invitationResult.rows.length === 0) {
-      return next(createError('Invalid or expired invitation code', 400));
+    if (!isFirstUser && !invitationCode) {
+      return next(createError('Invitation code is required', 400));
+    }
+
+    // Verify invitation code (only if not first user)
+    if (!isFirstUser) {
+      const invitationResult = await query(
+        'SELECT * FROM invitations WHERE invitation_code = $1 AND used = false AND expires_at > NOW()',
+        [invitationCode]
+      );
+
+      if (invitationResult.rows.length === 0) {
+        return next(createError('Invalid or expired invitation code', 400));
+      }
     }
 
     // Check if user already exists
@@ -48,11 +58,13 @@ router.post('/register', async (req, res, next) => {
 
     const user = userResult.rows[0];
 
-    // Mark invitation as used
-    await query(
-      'UPDATE invitations SET used = true WHERE invitation_code = $1',
-      [invitationCode]
-    );
+    // Mark invitation as used (only if not first user)
+    if (!isFirstUser && invitationCode) {
+      await query(
+        'UPDATE invitations SET used = true WHERE invitation_code = $1',
+        [invitationCode]
+      );
+    }
 
     // Generate token
     const token = generateToken({
