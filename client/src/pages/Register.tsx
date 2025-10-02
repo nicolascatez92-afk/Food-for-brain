@@ -25,7 +25,7 @@ const Register: React.FC = () => {
     e.preventDefault();
     
     const { email, username, password, fullName, invitationCode } = formData;
-    if (!email || !username || !password || !invitationCode) return;
+    if (!email || !username || !password) return;
 
     setLoading(true);
     try {
