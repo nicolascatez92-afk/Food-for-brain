@@ -42,7 +42,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public directory
-app.use(express.static(path.join(__dirname, '../../public')));
+const publicPath = path.join(__dirname, '../../public');
+console.log('Looking for static files in:', publicPath);
+app.use(express.static(publicPath));
 
 // Routes
 app.use('/api/auth', authRoutes);
