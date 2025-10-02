@@ -43,7 +43,19 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public directory
 const publicPath = path.join(__dirname, '../../public');
+console.log('Current working directory:', process.cwd());
+console.log('__dirname:', __dirname);
 console.log('Looking for static files in:', publicPath);
+
+// Check if directory exists
+const fs = require('fs');
+try {
+  const files = fs.readdirSync(publicPath);
+  console.log('Files in public directory:', files);
+} catch (error) {
+  console.error('Public directory does not exist or is empty:', error.message);
+}
+
 app.use(express.static(publicPath));
 
 // Routes
