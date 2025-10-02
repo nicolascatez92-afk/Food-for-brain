@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { createError } from './errorHandler';
 
 export interface AuthRequest extends Request {
@@ -29,7 +29,11 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
 };
 
 export const generateToken = (payload: any): string => {
-  return jwt.sign(payload, process.env.JWT_SECRET!, { 
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d' 
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  
+  return jwt.sign(payload, process.env.JWT_SECRET, { 
+    expiresIn: '7d'
   });
 };
