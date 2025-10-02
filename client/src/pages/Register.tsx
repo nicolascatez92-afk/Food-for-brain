@@ -37,7 +37,7 @@ const Register: React.FC = () => {
     }
   };
 
-  const isFormValid = formData.email && formData.username && formData.password && formData.invitationCode;
+  const isFormValid = formData.email && formData.username && formData.password;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -58,15 +58,14 @@ const Register: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label htmlFor="invitationCode" className="block text-sm font-medium text-gray-700">
-                Code d'invitation *
+                Code d'invitation <span className="text-gray-500">(optionnel pour le premier utilisateur)</span>
               </label>
               <input
                 id="invitationCode"
                 name="invitationCode"
                 type="text"
-                required
                 className="input-field mt-1"
-                placeholder="ABC123XY"
+                placeholder="ABC123XY (laisse vide si tu es le premier)"
                 value={formData.invitationCode}
                 onChange={handleChange}
               />
