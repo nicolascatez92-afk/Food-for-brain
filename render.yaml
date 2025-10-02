@@ -16,11 +16,6 @@ services:
         fromDatabase:
           name: food-for-brain-db
           property: connectionString
-      - key: CLIENT_URL
-        fromService:
-          type: web
-          name: food-for-brain
-          property: host
     autoDeploy: false
 
 databases:

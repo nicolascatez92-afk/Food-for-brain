@@ -5,13 +5,14 @@
   "main": "server/dist/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "build": "npm run client:build && npm run server:build",
+    "build": "./build.sh",
     "start": "node server/dist/index.js",
     "server:dev": "cd server && npm run dev",
     "server:build": "cd server && npm run build",
     "client:dev": "cd client && npm run dev",
-    "client:build": "cd client && npm run build",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
+    "client:build": "cd client && npm run build && cd .. && mkdir -p public && cp -rv client/dist/* public/ && ls -la public/",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "postinstall": "echo 'Dependencies installed'"
   },
   "keywords": ["social", "articles", "ai", "friends"],
   "author": "Nicolas Catez",

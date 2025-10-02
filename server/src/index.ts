@@ -41,22 +41,34 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from public directory
-const publicPath = path.join(__dirname, '../../public');
-console.log('Current working directory:', process.cwd());
-console.log('__dirname:', __dirname);
-console.log('Looking for static files in:', publicPath);
+// Serve static files - try multiple possible locations
+const possiblePaths = [
+  path.join(__dirname, '../../public'),
+  path.join(process.cwd(), 'public'),
+  path.join(__dirname, '../../../public'),
+  './public'
+];
 
-// Check if directory exists
+let staticPath = null;
 const fs = require('fs');
-try {
-  const files = fs.readdirSync(publicPath);
-  console.log('Files in public directory:', files);
-} catch (error) {
-  console.error('Public directory does not exist or is empty:', error.message);
+
+for (const pathToTry of possiblePaths) {
+  try {
+    if (fs.existsSync(pathToTry)) {
+      staticPath = pathToTry;
+      console.log('✅ Found static files at:', staticPath);
+      break;
+    }
+  } catch (error) {
+    // Continue to next path
+  }
 }
 
-app.use(express.static(publicPath));
+if (staticPath) {
+  app.use(express.static(staticPath));
+} else {
+  console.log('⚠️ No static files found. App will serve API only.');
+}
 
 // Routes
 app.use('/api/auth', authRoutes);

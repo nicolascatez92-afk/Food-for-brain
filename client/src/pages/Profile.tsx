@@ -6,7 +6,7 @@ import { Edit3, Users, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Profile: React.FC = () => {
-  const { user } = useAuth();
+  const { } = useAuth();
   const [profile, setProfile] = useState<User | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [editing, setEditing] = useState(false);
