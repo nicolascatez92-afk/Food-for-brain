@@ -197,4 +197,60 @@ router.post('/admin/create-invitation', async (req, res, next) => {
   }
 });
 
+// TEMPORARY: Direct admin account creation
+// TODO: Remove this in production
+router.post('/admin/create-account', async (req, res, next) => {
+  try {
+    const email = 'nicolas.catez92@gmail.com';
+    const username = 'nicolas';
+    const password = 'admin123';
+    const fullName = 'Nicolas Catez';
+
+    // Check if user already exists
+    const existingUser = await query(
+      'SELECT id FROM users WHERE email = $1 OR username = $2',
+      [email, username]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.json({
+        success: false,
+        message: 'User already exists! Try logging in instead.',
+        loginUrl: 'https://food-for-brain.onrender.com'
+      });
+    }
+
+    // Hash password
+    const bcrypt = require('bcryptjs');
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    // Create user
+    const userResult = await query(
+      `INSERT INTO users (email, username, password_hash, full_name, is_verified) 
+       VALUES ($1, $2, $3, $4, true) RETURNING id, email, username, full_name`,
+      [email, username, passwordHash, fullName]
+    );
+
+    const user = userResult.rows[0];
+
+    res.json({
+      success: true,
+      message: 'Admin account created successfully!',
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        fullName: user.full_name
+      },
+      credentials: {
+        email: email,
+        password: 'admin123'
+      },
+      instructions: 'Use these credentials to login'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
