@@ -157,4 +157,32 @@ router.post('/invite', async (req, res, next) => {
   }
 });
 
+// TEMPORARY: Admin route to create invitation codes
+// TODO: Remove this in production and add proper admin auth
+router.post('/admin/create-invitation', async (req, res, next) => {
+  try {
+    const { email = 'admin@example.com' } = req.body;
+
+    // Generate invitation code
+    const invitationCode = uuidv4().substring(0, 8).toUpperCase();
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+    await query(
+      'INSERT INTO invitations (email, invitation_code, expires_at) VALUES ($1, $2, $3)',
+      [email, invitationCode, expiresAt]
+    );
+
+    res.json({
+      success: true,
+      message: 'Invitation code created successfully!',
+      invitationCode,
+      email,
+      expiresAt,
+      instructions: 'Use this code on the registration page'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
